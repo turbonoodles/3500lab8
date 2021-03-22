@@ -115,7 +115,7 @@ always @( state, ain ) begin
                 default: next_state = H; 
             endcase
         end
-        default: next_state = state; // catches H
+        default: next_state = state; 
     endcase
 end
 
