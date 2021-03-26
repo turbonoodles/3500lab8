@@ -32,8 +32,7 @@ parameter [3:0] R = 4'b0000; // reset state
 parameter [3:0] G01 = 1, G0100 = 4;
 parameter [3:0] G11 = 3, G1100 = 5;
 parameter [3:0] G10 = 2, G1000 = 6;
-parameter [3:0] H0 = 7; // hold state
-parameter [3:0] H1 = 8; // hold state
+parameter [3:0] H = 7; // hold state
 
 reg [2:0] state = R;
 reg [2:0] next_state;
@@ -59,10 +58,7 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: begin
-                    if ( yout ) next_state = H1;
-                    else next_state = H0;
-                end
+                default: next_state = H;
             endcase
         end
         H0: begin
@@ -70,10 +66,7 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: begin
-                    if ( yout ) next_state = H1;
-                    else next_state = H0;
-                end
+                default: next_state = H;
             endcase
         end
         G01: begin
@@ -82,10 +75,7 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: begin
-                    if ( yout ) next_state = H1;
-                    else next_state = H0;
-                end
+                default: next_state = H;
             endcase
         end
         G10: begin
@@ -94,10 +84,7 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: begin
-                    if ( yout ) next_state = H1;
-                    else next_state = H0;
-                end
+                default: next_state = H;
             endcase
         end
         G11: begin
@@ -106,55 +93,34 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: begin
-                    if ( yout ) next_state = H1;
-                    else next_state = H0;
-                end
+                default: next_state = H;
             endcase
         end
         G1100: begin
             case (ain)
-                2'b00: begin
-                    if ( yout ) next_state = H1;
-                    else next_state = H0;
-                end
+                2'b00: next_state = H;
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: begin
-                    if ( yout ) next_state = H1;
-                    else next_state = H0;
-                end
+                default: next_state = H;
             endcase
         end
         G1000: begin
             case (ain)
-                2'b00: begin
-                    if ( yout ) next_state = H1;
-                    else next_state = H0;
-                end
+                2'b00: next_state = H;
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: begin
-                    if ( yout ) next_state = H1;
-                    else next_state = H0;
-                end 
+                default: next_state = H;
             endcase
         end        
         G0100: begin
             case (ain)
-                2'b00: begin
-                    if ( yout ) next_state = H1;
-                    else next_state = H0;
-                end
+                2'b00: next_state = H1;
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: begin
-                    if ( yout ) next_state = H1;
-                    else next_state = H0;
-                end 
+                default: next_state = H; 
             endcase
         end
         default: next_state = state; 
