@@ -82,7 +82,10 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: next_state = H;
+                default: begin
+                    if ( yout ) next_state = H1;
+                    else next_state = H0;
+                end
             endcase
         end
         G10: begin
@@ -111,7 +114,10 @@ always @( state, ain ) begin
         end
         G1100: begin
             case (ain)
-                2'b00: next_state = H;
+                2'b00: begin
+                    if ( yout ) next_state = H1;
+                    else next_state = H0;
+                end
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
@@ -123,7 +129,10 @@ always @( state, ain ) begin
         end
         G1000: begin
             case (ain)
-                2'b00: next_state = H;
+                2'b00: begin
+                    if ( yout ) next_state = H1;
+                    else next_state = H0;
+                end
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
@@ -135,7 +144,10 @@ always @( state, ain ) begin
         end        
         G0100: begin
             case (ain)
-                2'b00: next_state = H;
+                2'b00: begin
+                    if ( yout ) next_state = H1;
+                    else next_state = H0;
+                end
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
