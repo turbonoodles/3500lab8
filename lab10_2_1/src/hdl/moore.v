@@ -53,15 +53,7 @@ always @( state, ain ) begin
                 default: next_state = R;
             endcase
         end
-        H1: begin
-            case (ain)
-                2'b01: next_state = G01;
-                2'b10: next_state = G10;
-                2'b11: next_state = G11;
-                default: next_state = H;
-            endcase
-        end
-        H0: begin
+        H: begin
             case (ain)
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
