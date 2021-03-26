@@ -32,7 +32,8 @@ parameter [3:0] R = 4'b0000; // reset state
 parameter [3:0] G01 = 1, G0100 = 4;
 parameter [3:0] G11 = 3, G1100 = 5;
 parameter [3:0] G10 = 2, G1000 = 6;
-parameter [3:0] H = 7; // hold state
+parameter [3:0] H0 = 7; // hold state
+parameter [3:0] H1 = 8; // hold state
 
 reg [2:0] state = R;
 reg [2:0] next_state;
@@ -53,12 +54,26 @@ always @( state, ain ) begin
                 default: next_state = R;
             endcase
         end
-        H: begin
+        H1: begin
             case (ain)
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: next_state = H;
+                default: begin
+                    if ( yout ) next_state = H1;
+                    else next_state = H0;
+                end
+            endcase
+        end
+        H0: begin
+            case (ain)
+                2'b01: next_state = G01;
+                2'b10: next_state = G10;
+                2'b11: next_state = G11;
+                default: begin
+                    if ( yout ) next_state = H1;
+                    else next_state = H0;
+                end
             endcase
         end
         G01: begin
@@ -76,7 +91,10 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: next_state = H;
+                default: begin
+                    if ( yout ) next_state = H1;
+                    else next_state = H0;
+                end
             endcase
         end
         G11: begin
@@ -85,7 +103,10 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: next_state = H;
+                default: begin
+                    if ( yout ) next_state = H1;
+                    else next_state = H0;
+                end
             endcase
         end
         G1100: begin
@@ -94,7 +115,10 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: next_state = H; 
+                default: begin
+                    if ( yout ) next_state = H1;
+                    else next_state = H0;
+                end
             endcase
         end
         G1000: begin
@@ -103,7 +127,10 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: next_state = H; 
+                default: begin
+                    if ( yout ) next_state = H1;
+                    else next_state = H0;
+                end 
             endcase
         end        
         G0100: begin
@@ -112,12 +139,18 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: next_state = H; 
+                default: begin
+                    if ( yout ) next_state = H1;
+                    else next_state = H0;
+                end 
             endcase
         end
         default: next_state = state; 
     endcase
 end
+
+wire yout_n;
+assign yout_n = ~yout;
 
 // calculate outputs
 always @ ( state ) begin
@@ -125,8 +158,10 @@ always @ ( state ) begin
         R: yout = 0;
         G0100: yout = 0;
         G1100: yout = 1;
-        G1000: yout = ~yout;
-        default: yout = yout; // catches H
+        G1000: yout = yout_n;
+        H0: yout = 0;
+        H1: yout = 1;
+        default: yout = 0; 
     endcase
 end
 endmodule
