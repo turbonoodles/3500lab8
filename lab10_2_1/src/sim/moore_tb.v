@@ -39,7 +39,7 @@ parameter [3:0] H = 7; // hold state
 reg [2:0] state = R;
 reg [2:0] next_state;
 // drive state machine
-always @( posedge clk, posedge reset ) begin
+always @( negedge clk, posedge reset ) begin
     if (reset) state <= R;
     else state <= next_state;
 end
@@ -96,7 +96,7 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: next_state = H; 
+                default: next_state = H;
             endcase
         end
         G1000: begin
@@ -105,7 +105,7 @@ always @( state, ain ) begin
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
-                default: next_state = H; 
+                default: next_state = H;
             endcase
         end        
         G0100: begin
@@ -117,20 +117,25 @@ always @( state, ain ) begin
                 default: next_state = H; 
             endcase
         end
-        default: next_state = state;
+        default: next_state = state; 
     endcase
 end
 
-// calculate outputs
-always @ ( state ) begin
-    case (state)
-        R: yout = 0;
-        G0100: yout = 0;
-        G1100: yout = 1;
-        G1000: yout = ~yout;
-        default: yout = yout; // catches H
-    endcase
-end
+// calculate outputs using a flip-flop
+always @( posedge clk, posedge reset ) begin
+    if ( reset ) yout <= 0;
+    else begin
+        if ( state == G1100 ) begin
+            yout <= 1; // synchronous set
+        end
+        else if ( state == G0100 ) begin
+            yout <= 0; // synchronous clear
+        end
+        else if ( state == G1000 ) begin
+            yout <= ~yout; // toggle
+        end
+    end
+end 
 
 //testbench stuff
 initial begin
