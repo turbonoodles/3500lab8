@@ -127,9 +127,6 @@ always @( state, ain ) begin
     endcase
 end
 
-wire yout_n;
-assign yout_n = ~yout;
-
 // calculate outputs using a flip-flop
 always @( posedge clk, posedge reset ) begin
     if ( reset ) yout <= 0;
