@@ -130,16 +130,20 @@ end
 wire yout_n;
 assign yout_n = ~yout;
 
-// calculate outputs
-always @ ( state ) begin
-    case (state)
-        R: yout = 0;
-        G0100: yout = 0;
-        G1100: yout = 1;
-        G1000: yout = yout_n;
-        H0: yout = 0;
-        H1: yout = 1;
-        default: yout = 0; 
-    endcase
-end
+// calculate outputs using a flip-flop
+always @( posedge clk, posedge reset ) begin
+    if ( reset ) yout <= 0;
+    else begin
+        if ( state == G1100 ) begin
+            yout <= 1; // synchronous set
+        end
+        else if ( state == G0100 ) begin
+            yout <= 0; // synchronous clear
+        end
+        else if ( state == G1000 ) begin
+            yout <= ~yout; // toggle
+        end
+    end
+end 
+
 endmodule
