@@ -108,7 +108,7 @@ always @( state, ain ) begin
         end        
         G0100: begin
             case (ain)
-                2'b00: next_state = H1;
+                2'b00: next_state = H;
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
