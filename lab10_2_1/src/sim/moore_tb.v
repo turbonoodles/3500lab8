@@ -46,6 +46,7 @@ end
 
 // calculate next state
 always @( state, ain ) begin
+    #1;
     case ( state )
         R: begin
             case (ain)
@@ -121,20 +122,11 @@ always @( state, ain ) begin
     endcase
 end
 
-// calculate outputs using a flip-flop
-always @( posedge clk, posedge reset ) begin
-    if ( reset ) yout <= 0;
-    else begin
-        if ( state == G1100 ) begin
-            yout <= 1; // synchronous set
-        end
-        else if ( state == G0100 ) begin
-            yout <= 0; // synchronous clear
-        end
-        else if ( state == G1000 ) begin
-            yout <= ~yout; // toggle
-        end
-    end
+always @( state ) begin
+    if ( state == R ) yout <= 0;
+    else if ( state == G1100 ) yout <= 1; // synchronous set
+    else if ( state == G0100 ) yout <= 0; // synchronous clear
+    else if ( state == G1000 ) yout <= ~yout; // toggle
 end 
 
 //testbench stuff
