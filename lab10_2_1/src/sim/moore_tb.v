@@ -39,7 +39,7 @@ parameter [3:0] H = 7; // hold state
 reg [2:0] state = R;
 reg [2:0] next_state;
 // drive state machine
-always @( negedge clk, posedge reset ) begin
+always @( posedge clk, posedge reset ) begin
     if (reset) state <= R;
     else state <= next_state;
 end
