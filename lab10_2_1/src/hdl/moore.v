@@ -120,13 +120,11 @@ always @( state, ain ) begin
 end
 
 // calculate outputs
-always @ ( state ) begin
-    case (state)
-        R: yout = 0;
-        G0100: yout = 0;
-        G1100: yout = 1;
-        G1000: yout = ~yout;
-        default: yout = yout; // catches H
-    endcase
-end
+always @( state ) begin
+    if ( state == reset ) yout <= 0;
+    else if ( state == G1100 ) yout <= 1; // synchronous set
+    else if ( state == G0100 ) yout <= 0; // synchronous clear
+    else if ( state == G1000 ) yout <= ~yout; // toggle
+end 
+
 endmodule
