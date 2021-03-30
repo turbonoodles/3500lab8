@@ -31,7 +31,7 @@ module moore(
 parameter [3:0] R = 4'b0000; // reset state
 parameter [3:0] G01 = 1, G0100 = 4;
 parameter [3:0] G11 = 3, G1100 = 5;
-parameter [3:0] G10 = 2, G1000 = 6;
+parameter [3:0] G10 = 2, G1000H = 6, G1000L = 8;
 parameter [3:0] H = 7; // hold state
 
 reg [2:0] state = R;
@@ -72,7 +72,10 @@ always @( state, ain ) begin
         end
         G10: begin
             case (ain)
-                2'b00: next_state = G1000;
+                2'b00: begin
+                    if ( yout ) next_state = G1000H;
+                    else next_state = G1000L;
+                end
                 2'b01: next_state = G01;
                 2'b10: next_state = G10;
                 2'b11: next_state = G11;
@@ -97,7 +100,16 @@ always @( state, ain ) begin
                 default: next_state = H; 
             endcase
         end
-        G1000: begin
+        G1000L: begin
+            case (ain)
+                2'b00: next_state = H;
+                2'b01: next_state = G01;
+                2'b10: next_state = G10;
+                2'b11: next_state = G11;
+                default: next_state = H; 
+            endcase
+        end 
+        G1000H: begin
             case (ain)
                 2'b00: next_state = H;
                 2'b01: next_state = G01;
@@ -119,12 +131,15 @@ always @( state, ain ) begin
     endcase
 end
 
+reg prev_yout;
 // calculate outputs
 always @( state ) begin
-    if ( state == reset ) yout <= 0;
-    else if ( state == G1100 ) yout <= 1; // synchronous set
-    else if ( state == G0100 ) yout <= 0; // synchronous clear
-    else if ( state == G1000 ) yout <= ~yout; // toggle
+    prev_yout = yout;
+    yout = 0;
+    if ( state == G1100 ) yout = 1; // synchronous set
+    else if ( state == G0100 ) yout = 0; // synchronous clear
+    else if ( state == G1000H ) yout = 0; // toggle
+    else if ( state == G1000L ) yout = 1; // toggle
 end 
 
 endmodule
