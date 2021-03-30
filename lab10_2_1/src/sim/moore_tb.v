@@ -30,13 +30,17 @@ reg [1:0] ain;
 reg yout = 0;
 
 // state definitions
+// all permanently-high states set the MSB
 parameter [3:0] R = 4'b0000; // reset state
-parameter [3:0] G01 = 1, G0100 = 4;
-parameter [3:0] G11 = 3, G1100 = 5;
-parameter [3:0] G10 = 4'b0010;
-parameter [3:0] G1000H = 4'b0110;
-parameter [3:0] G1000L = 4'b1110;
-parameter [3:0] H = 7; // hold state
+parameter [3:0] G01L = 1, G01H = 9;
+parameter [3:0] G0100 = 4;
+parameter [3:0] G11L = 3, G11H = 11;
+parameter [3:0] G1100 = 5;
+parameter [3:0] G10L = 2, G10H = 10;
+parameter [3:0] G1000H = 8;
+parameter [3:0] G1000L = 14;
+parameter [3:0] HoldL = 7; // hold low output
+parameter [3:0] HoldH = 6; // hold high output
 
 reg [3:0] state = R;
 reg [3:0] next_state;
@@ -51,102 +55,157 @@ always @( state, ain, yout ) begin
     #1;
     case ( state )
         R: begin
+            if ( yout ) begin
+                case (ain)
+                    2'b01: next_state = G01H;
+                    2'b10: next_state = G10H;
+                    2'b11: next_state = G11H;
+                    default: next_state = R;
+                endcase
+            end
+            else begin
+                case (ain)
+                    2'b01: next_state = G01L;
+                    2'b10: next_state = G10L;
+                    2'b11: next_state = G11L;
+                    default: next_state = R;
+                endcase
+            end
+        end
+        HoldH: begin
             case (ain)
-                2'b01: next_state = G01;
-                2'b10: next_state = G10;
-                2'b11: next_state = G11;
-                default: next_state = R;
+                2'b01: next_state = G01H;
+                2'b10: next_state = G10H;
+                2'b11: next_state = G11H;
+                default: next_state = HoldH;
             endcase
         end
-        H: begin
+        HoldL: begin
             case (ain)
-                2'b01: next_state = G01;
-                2'b10: next_state = G10;
-                2'b11: next_state = G11;
-                default: next_state = H;
+                2'b01: next_state = G01L;
+                2'b10: next_state = G10L;
+                2'b11: next_state = G11L;
+                default: next_state = HoldL;
             endcase
         end
-        G01: begin
+        G01H: begin
             case (ain)
                 2'b00: next_state = G0100;
-                2'b01: next_state = G01;
-                2'b10: next_state = G10;
-                2'b11: next_state = G11;
-                default: next_state = H;
+                2'b01: next_state = G01H;
+                2'b10: next_state = G10H;
+                2'b11: next_state = G11H;
+                default: next_state = HoldH;
             endcase
         end
-        G10: begin
+        G01L: begin
+                case (ain)
+                    2'b00: next_state = G0100;
+                    2'b01: next_state = G01L;
+                    2'b10: next_state = G10L;
+                    2'b11: next_state = G11L;
+                    default: next_state = HoldL;
+                endcase
+            end
+        G10H: begin
             case (ain)
-                2'b00: begin
-                    if ( yout ) next_state = G1000H;
-                    else next_state = G1000L;
-                end
-                2'b01: next_state = G01;
-                2'b10: next_state = G10;
-                2'b11: next_state = G11;
-                default: next_state = H;
+                2'b00: next_state = G1000L; // toggle
+                2'b01: next_state = G01H;
+                2'b10: next_state = G10H;
+                2'b11: next_state = G11H;
+                default: next_state = HoldH;
             endcase
         end
-        G11: begin
-            case (ain)
-                2'b00: next_state = G1100;
-                2'b01: next_state = G01;
-                2'b10: next_state = G10;
-                2'b11: next_state = G11;
-                default: next_state = H;
-            endcase
+        G10L: begin
+                case (ain)
+                    2'b00: next_state = G1000H; // toggle
+                    2'b01: next_state = G01L;
+                    2'b10: next_state = G10L;
+                    2'b11: next_state = G11L;
+                    default: next_state = HoldL;
+                endcase   
+        end
+        G11H: begin
+                case (ain)
+                    2'b00: next_state = G1100;
+                    2'b01: next_state = G01H;
+                    2'b10: next_state = G10H;
+                    2'b11: next_state = G11H;
+                    default: next_state = HoldH;
+                endcase
+        end
+        G11L: begin
+                 case (ain)
+                    2'b00: next_state = G1100;
+                    2'b01: next_state = G01L;
+                    2'b10: next_state = G10L;
+                    2'b11: next_state = G11L;
+                    default: next_state = HoldH;
+                endcase
         end
         G1100: begin
-            case (ain)
-                2'b00: next_state = H;
-                2'b01: next_state = G01;
-                2'b10: next_state = G10;
-                2'b11: next_state = G11;
-                default: next_state = H; 
+            case (ain) // this will set
+                2'b00: next_state = HoldH;
+                2'b01: next_state = G01H;
+                2'b10: next_state = G10H;
+                2'b11: next_state = G11H;
+                default: begin
+                    if ( yout ) next_state = HoldH;
+                    else next_state = HoldL;
+                end
             endcase
         end
         G1000L: begin
-            case (ain)
-                2'b00: next_state = H;
-                2'b01: next_state = G01;
-                2'b10: next_state = G10;
-                2'b11: next_state = G11;
-                default: next_state = H; 
+            case (ain) 
+                2'b00: next_state = HoldL;
+                2'b01: next_state = G01L;
+                2'b10: next_state = G10L;
+                2'b11: next_state = G11L;
+                default: next_state = HoldL;
             endcase
         end 
         G1000H: begin
             case (ain)
-                2'b00: next_state = H;
-                2'b01: next_state = G01;
-                2'b10: next_state = G10;
-                2'b11: next_state = G11;
-                default: next_state = H; 
+                2'b00: next_state = HoldH;
+                2'b01: next_state = G01H;
+                2'b10: next_state = G10H;
+                2'b11: next_state = G11H;
+                default: next_state = HoldH;
             endcase
         end        
         G0100: begin
-            case (ain)
-                2'b00: next_state = H;
-                2'b01: next_state = G01;
-                2'b10: next_state = G10;
-                2'b11: next_state = G11;
-                default: next_state = H; 
+            case (ain) // this will clear
+                2'b00: next_state = HoldL;
+                2'b01: next_state = G01L;
+                2'b10: next_state = G10L;
+                2'b11: next_state = G11L;
+                default: begin
+                    if ( yout ) next_state = HoldH;
+                    else next_state = HoldL;
+                end 
             endcase
         end
         default: next_state = state;
     endcase
 end
 
-reg yout_prev;
 // calculate outputs
 always @( state ) begin
-    yout_prev = yout;
-    yout = 0;
-    if ( state == R ) yout = 0;
-    else if ( state == G1100 ) yout = 1; // synchronous set
-    else if ( state == G0100 ) yout = 0; // synchronous clear
-    else if ( state == G1000H ) yout = 0; // toggle
-    else if ( state == G1000L ) yout = 1; // toggle
-    else yout = yout_prev; // for states G01, G10, G11, and H
+    case ( state )
+        R: yout = 0;
+        G10H: yout = 1;
+        G10L: yout = 0;
+        G11H: yout = 1;
+        G11L: yout = 0;
+        G01H: yout = 1;
+        G01L: yout = 0;
+        G1100: yout = 1;
+        G0100: yout = 0;
+        G1000H: yout = 1;
+        G1000L: yout = 0;
+        HoldL: yout = 0;
+        HoldH: yout = 1;
+        default: yout = 0;
+    endcase
 end 
 
 //testbench stuff
