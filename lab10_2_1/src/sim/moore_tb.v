@@ -141,12 +141,12 @@ reg yout_prev;
 always @( state ) begin
     yout_prev = yout;
     yout = 0;
-    if ( state == G1100 ) yout = 1; // synchronous set
+    if ( state == R ) yout = 0;
+    else if ( state == G1100 ) yout = 1; // synchronous set
     else if ( state == G0100 ) yout = 0; // synchronous clear
     else if ( state == G1000H ) yout = 0; // toggle
     else if ( state == G1000L ) yout = 1; // toggle
-    else if ( state == H ) yout = yout_prev;
-    else yout = 0;
+    else yout = yout_prev; // for states G01, G10, G11, and H
 end 
 
 //testbench stuff
