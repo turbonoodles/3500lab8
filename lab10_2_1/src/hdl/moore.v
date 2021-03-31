@@ -40,8 +40,8 @@ parameter [3:0] G1000L = 14;
 parameter [3:0] HoldL = 7; // hold low output
 parameter [3:0] HoldH = 6; // hold high output
 
-reg [2:0] state = R;
-reg [2:0] next_state;
+reg [3:0] state = R;
+reg [3:0] next_state;
 // drive state machine
 always @( posedge clk, posedge reset ) begin
     if (reset) state <= R;
@@ -62,13 +62,13 @@ always @( state, ain, yout ) begin
                 endcase
             end
             else begin
-                case (ain)
-                    2'b01: next_state = G01L;
-                    2'b10: next_state = G10L;
-                    2'b11: next_state = G11L;
-                    default: next_state = R;
-                endcase
-            end
+            case (ain)
+                2'b01: next_state = G01L;
+                2'b10: next_state = G10L;
+                2'b11: next_state = G11L;
+                default: next_state = R;
+            endcase
+        end
         end
         HoldH: begin
             case (ain)
