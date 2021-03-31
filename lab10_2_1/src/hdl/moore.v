@@ -53,22 +53,12 @@ always @( state, ain, yout ) begin
     #1;
     case ( state )
         R: begin
-            if ( yout ) begin
-                case (ain)
-                    2'b01: next_state = G01H;
-                    2'b10: next_state = G10H;
-                    2'b11: next_state = G11H;
-                    default: next_state = R;
-                endcase
-            end
-            else begin
             case (ain)
                 2'b01: next_state = G01L;
                 2'b10: next_state = G10L;
                 2'b11: next_state = G11L;
                 default: next_state = R;
             endcase
-        end
         end
         HoldH: begin
             case (ain)
